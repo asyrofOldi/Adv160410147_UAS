@@ -21,15 +21,4 @@ data class News (
     val pages: List<String>
 )
 
-data class userData(
-    val username: String,
-    val firstName: String,
-    val lastName: String,
-    val password: String  // Note: Be cautious with logging passwords.
-) {
-    fun printInfo() {
-        Log.d("UserModel", "User: $username, Name: $firstName $lastName")
-    }
-}
-
 
