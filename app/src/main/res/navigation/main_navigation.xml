@@ -1,0 +1,68 @@
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_navigation"
+    app:startDestination="@id/loginFragment">
+
+    <!-- Login Fragment -->
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.ubaya.project_uts_160420147.view.LoginFragment"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_loginFragment_to_registerFragment"
+            app:destination="@id/registerFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_itemHome"
+            app:destination="@id/itemHome" />
+    </fragment>
+
+    <!-- Register Fragment -->
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="com.ubaya.project_uts_160420147.view.RegisterFragment"
+        android:label="fragment_register"
+        tools:layout="@layout/fragment_register">
+        <action
+            android:id="@+id/action_registerFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
+
+    <!-- Game List Fragment -->
+    <fragment
+        android:id="@+id/itemHome"
+        android:name="com.ubaya.project_uts_160420147.view.GameListFragment"
+        android:label="fragment_game_list"
+        tools:layout="@layout/fragment_game_list">
+        <action
+            android:id="@+id/action_gameListFragment_to_gameDetailFragment"
+            app:destination="@id/itemReadHistory" />
+    </fragment>
+
+
+    <!-- Game Detail Fragment -->
+    <fragment
+        android:id="@+id/itemReadHistory"
+        android:name="com.ubaya.project_uts_160420147.view.GameDetailFragment"
+        android:label="fragment_game_detail"
+        tools:layout="@layout/fragment_game_detail">
+        <argument
+            android:name="gameId"
+            app:argType="integer"
+            android:defaultValue="0"/>
+    </fragment>
+
+
+
+    <!-- Profile Fragment -->
+    <fragment
+        android:id="@+id/itemProfile"
+        android:name="com.ubaya.project_uts_160420147.view.ProfileFragment"
+        android:label="fragment_profil"
+        tools:layout="@layout/fragment_profil" >
+        <action
+            android:id="@+id/action_itemProfile_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
+</navigation>
