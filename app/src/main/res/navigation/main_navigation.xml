@@ -8,8 +8,11 @@
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.ubaya.project_uts_160420147.view.LoginFragment"
-        android:label="fragment_login"
+        android:label="LoginFragment"
         tools:layout="@layout/fragment_login">
+<!--        <argument-->
+<!--            android:name="akunId"-->
+<!--            app:argType="integer" />-->
         <action
             android:id="@+id/action_loginFragment_to_registerFragment"
             app:destination="@id/registerFragment" />
@@ -36,8 +39,11 @@
         android:label="fragment_game_list"
         tools:layout="@layout/fragment_game_list">
         <action
-            android:id="@+id/action_gameListFragment_to_gameDetailFragment"
+            android:id="@+id/actionReadHotel"
             app:destination="@id/itemReadHistory" />
+        <action
+            android:id="@+id/actionToTambahGame"
+            app:destination="@id/tambahGame" />
     </fragment>
 
 
@@ -49,8 +55,10 @@
         tools:layout="@layout/fragment_game_detail">
         <argument
             android:name="gameId"
-            app:argType="integer"
-            android:defaultValue="0"/>
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_itemReadHistory_to_createNewsFragment"
+            app:destination="@id/createNewsFragment" />
     </fragment>
 
 
@@ -64,5 +72,18 @@
         <action
             android:id="@+id/action_itemProfile_to_loginFragment"
             app:destination="@id/loginFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/tambahGame"
+        android:name="com.ubaya.project_uts_160420147.view.CreateGameFragment"
+        android:label="fragment_tambah_game"
+        tools:layout="@layout/fragment_create_game" />
+    <fragment
+        android:id="@+id/createNewsFragment"
+        android:name="com.ubaya.project_uts_160420147.view.CreateNewsFragment"
+        android:label="CreateNewsFragment">
+        <argument
+            android:name="gameId"
+            app:argType="integer" />
     </fragment>
 </navigation>

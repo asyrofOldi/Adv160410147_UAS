@@ -1,41 +1,49 @@
 package com.ubaya.project_uts_160420147.view
 
+import android.provider.ContactsContract.RawContacts.Data
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.squareup.picasso.Picasso
 import com.ubaya.project_uts_160420147.R
+import com.ubaya.project_uts_160420147.databinding.ItemNewsBinding
+import com.ubaya.project_uts_160420147.model.News
 
-class NewsAdapter : RecyclerView.Adapter<NewsAdapter.NewsViewHolder>() {
-    private var currentPage: String? = null
+class NewsAdapter(private var newsList: ArrayList<News>) : RecyclerView.Adapter<NewsAdapter.NewsViewHolder>()
+{
+
+    class NewsViewHolder(val view:ItemNewsBinding) : RecyclerView.ViewHolder(view.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NewsViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.news_item, parent, false)
+        val inflater = LayoutInflater.from(parent.context)
+        val view = DataBindingUtil.inflate<ItemNewsBinding>(inflater,
+            R.layout.item_news,parent,false)
+//        val binding = ItemNewsBinding.inflate(inflater, parent, false)
         return NewsViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: NewsViewHolder, position: Int) {
-        currentPage?.let { holder.bind(it) }
+//        val news = newsList[position]
+        holder.view.news = newsList[position]
+
+//        with(holder.binding) {
+//            textViewJudul.text = news.title
+//            textViewPengarang.text = news.author
+//            textViewCategory.text = news.category
+//            textViewDeskripsiSingkat.text = news.deskrip
+//        }
     }
 
-    override fun getItemCount(): Int = if (currentPage != null) 1 else 0
-
-    class NewsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val textView: TextView = itemView.findViewById(R.id.text_view_news_page)
-
-        fun bind(page: String) {
-            textView.text = page
-        }
+    override fun getItemCount(): Int {
+        return newsList.size
     }
 
-    fun updatePage(newPage: String?) {
-        currentPage = newPage
-        notifyDataSetChanged()  // Notify that the data has changed
-    }
-
-    fun updatePages(newPages: List<String>) {
-        currentPage = newPages.toString()
-        notifyDataSetChanged()
+    fun updateNewsList(newNewsList: List<News>) {
+        newsList.clear() // Membersihkan list newsList
+        newsList.addAll(newNewsList) // Menambahkan semua item dari newNewsList ke newsList
+        notifyDataSetChanged() // Memberitahu RecyclerView bahwa dataset telah berubah
     }
 }
+
+

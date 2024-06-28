@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("kotlin-kapt")
     id("androidx.navigation.safeargs.kotlin")
 }
 
@@ -9,8 +10,12 @@ android {
     compileSdk = 34
 
     buildFeatures {
+        dataBinding = true
         viewBinding = true
     }
+
+
+
 
     defaultConfig {
         applicationId = "com.ubaya.project_uts_160420147"
@@ -52,6 +57,9 @@ dependencies {
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
+    implementation ("androidx.room:room-runtime:2.5.1")
+    implementation ("androidx.room:room-ktx:2.5.1")
+    kapt ("androidx.room:room-compiler:2.5.1")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
     implementation("com.android.volley:volley:1.2.1")
     implementation("com.google.firebase:firebase-crashlytics-buildtools:2.9.9")

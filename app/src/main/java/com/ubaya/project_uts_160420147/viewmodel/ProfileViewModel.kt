@@ -1,47 +1,60 @@
 package com.ubaya.project_uts_160420147.viewmodel
 
 import android.app.Application
-import android.content.Context
-import android.content.SharedPreferences
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
+import com.ubaya.project_uts_160420147.model.Akun
+import com.ubaya.project_uts_160420147.util.buildDb
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
-class ProfileViewModel(application: Application) : AndroidViewModel(application) {
-    private val prefs = application.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+class ProfileViewModel(application: Application) : AndroidViewModel(application), CoroutineScope {
 
-    val username = MutableLiveData<String>()
-    val firstName = MutableLiveData<String>()
-    val lastName = MutableLiveData<String>()
-    val password = MutableLiveData<String>()
+    private val db = buildDb(getApplication())
+    val akunLD = MutableLiveData<Akun?>()
+    private var job = Job()
 
-    init {
-        username.value = prefs.getString("username", "")
-        firstName.value = prefs.getString("first_name", "")
-        lastName.value = prefs.getString("last_name", "")
-        password.value = prefs.getString("password", "")
-    }
+    override val coroutineContext: CoroutineContext
+        get() = job + Dispatchers.IO
 
-    fun saveUserData(fName: String, lName: String, pwd: String) {
-        prefs.edit().apply {
-            putString("username", username.value ?: "") // Ensure username is not null
-            putString("first_name", fName)
-            putString("last_name", lName)
-            putString("password", pwd)  // Reconsider saving passwords in SharedPreferences for security reasons.
-            apply()
+    fun register(list: List<Akun>) {
+        launch {
+            db.gameDao().insertAkun(*list.toTypedArray())
         }
-        firstName.value = fName
-        lastName.value = lName
-        password.value = pwd
     }
 
-    fun clearUserData() {
-        prefs.edit().clear().apply()
-        username.value = ""
-        firstName.value = ""
-        lastName.value = ""
-        password.value = ""
+    fun login(username: String, password: String) {
+        viewModelScope.launch(Dispatchers.IO) { // Menggunakan Dispatchers.IO untuk akses database di thread yang sesuai
+            val akun = db.gameDao().cekLogin(username, password)
+            akunLD.postValue(akun)
+            akun?.let {
+                // Save the user ID to shared preferences
+                val sharedPreferences = getApplication<Application>().getSharedPreferences("user_prefs", 0)
+                with(sharedPreferences.edit()) {
+                    putInt("user_id", it.id)
+                    apply()
+                }
+            }
+        }
     }
+
+    fun updateProfile(akunId: Int, firstName: String, lastName: String, password: String) {
+        launch {
+            db.gameDao().updateAkun(akunId,firstName,lastName, password)
+        }
+    }
+
+    fun getAkunById(akunId: Int) {
+        viewModelScope.launch {
+            val akunLiveData = db.gameDao().selectAkunById(akunId)
+            akunLiveData.observeForever { akun ->
+                akunLD.postValue(akun)
+            }
+        }
+    }
+
 }
-
-
-

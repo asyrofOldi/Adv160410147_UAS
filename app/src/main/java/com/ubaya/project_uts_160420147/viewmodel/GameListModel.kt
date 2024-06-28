@@ -10,52 +10,40 @@ import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.google.gson.Gson
 import com.ubaya.project_uts_160420147.model.Game
+import com.ubaya.project_uts_160420147.util.buildDb
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
-class GameListModel(application: Application) : AndroidViewModel(application) {
+class GameListModel(application: Application) : AndroidViewModel(application), CoroutineScope {
     val gameLD = MutableLiveData<List<Game>>()
     val gameLoadErrorLD = MutableLiveData<Boolean>()
     val loadingLD = MutableLiveData<Boolean>()
-    var dataFetched = false  // Flag to track if data has been fetched
+    val db = buildDb(getApplication())
+    private var job = Job()
 
-    private val TAG = "volleyTag"
-    private var queue: RequestQueue? = Volley.newRequestQueue(application)
+    override val coroutineContext: CoroutineContext
+        get() = job + Dispatchers.IO
 
-    fun refresh() {
-        if (!dataFetched || gameLD.value.isNullOrEmpty()) {
-            gameLoadErrorLD.value = false
-            loadingLD.value = true
-            Log.d("CekMasuk", "masukvolley")
-            val url = "http://192.168.1.80/anmp_uts/game.json"
-            val stringRequest = StringRequest(
-                Request.Method.GET, url,
-                { response ->
-                    try {
-                        val gson = Gson()
-                        val game = gson.fromJson(response, Array<Game>::class.java).toList()
-                        gameLD.value = game
-                        gameLoadErrorLD.value = false
-                        loadingLD.value = false
-                        dataFetched = true  // Set flag to true as data is now fetched
-                        Log.d("showVolley", game.toString())
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Error parsing JSON: ", e)
-                        gameLoadErrorLD.value = true
-                        loadingLD.value = false
-                    }
-                },
-                { error ->
-                    Log.e(TAG, "Volley error: $error")
-                    gameLoadErrorLD.value = true
-                    loadingLD.value = false
-                }
-            )
-            stringRequest.tag = TAG
-            queue?.add(stringRequest)
+    fun createGame(list: List<Game>) {
+        launch {
+            db.gameDao().insertGame(*list.toTypedArray())
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        queue?.cancelAll(TAG)
+    fun refresh() {
+        launch {
+            try {
+                val games = db.gameDao().getAllGames() // Assume this returns LiveData<List<Game>>
+                gameLD.postValue(games) // Assign LiveData value to MutableLiveData
+                gameLoadErrorLD.postValue(false)
+                loadingLD.postValue(false)
+            } catch (e: Exception) {
+                gameLoadErrorLD.postValue(true)
+                loadingLD.postValue(true)
+            }
+        }
     }
 }

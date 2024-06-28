@@ -1,44 +1,56 @@
 package com.ubaya.project_uts_160420147.viewmodel
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.android.volley.Request
-import com.android.volley.RequestQueue
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
-import com.google.gson.Gson
 import com.ubaya.project_uts_160420147.model.Game
-import org.json.JSONException
+import com.ubaya.project_uts_160420147.model.News
+import com.ubaya.project_uts_160420147.util.buildDb
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class DetailViewModel(application: Application) : AndroidViewModel(application) {
-    private val _gameData = MutableLiveData<Game?>()
-    val gameData: LiveData<Game?> = _gameData
+class DetailViewModel(application: Application) : AndroidViewModel(application), CoroutineScope {
+    private var job = Job()
+    private val db = buildDb(getApplication())
+    val gameLD = MutableLiveData<Game?>()
+    val newsLD = MutableLiveData<List<News>>()
 
-    private val requestQueue: RequestQueue by lazy {
-        Volley.newRequestQueue(application.applicationContext)
-    }
+    override val coroutineContext
+        get() = job + Dispatchers.IO
 
     fun fetch(gameId: Int) {
-        val url = "http://192.168.1.80/anmp_uts/games.php?gameID=$gameId"
-        Log.d("DetailViewModel", "Fetching data from URL: $url")
-        val gameRequest = StringRequest(Request.Method.GET, url,
-            { response ->
-                try {
-                    val game = Gson().fromJson(response, Game::class.java)
-                    _gameData.postValue(game)
-                } catch (e: Exception) {
-                    Log.e("JSON Parse Error", "Error parsing game details", e)
-                }
-            },
-            { error ->
-                Log.e("API Error", "Error fetching game details: ${error.message}")
+        launch {
+            val game = db.gameDao().selectGameById(gameId.toInt())
+            val newsList = db.gameDao().selectNewsByGameId(gameId.toInt())
+            withContext(Dispatchers.Main) {
+                gameLD.value = game
+                newsLD.value = newsList
             }
-        )
-        requestQueue.add(gameRequest)
+        }
+    }
+    fun fetchNews(gameId: Int){
+        launch {
+            val newsList = db.gameDao().selectNewsByGameId(gameId)
+            newsLD.postValue(newsList)
+        }
     }
 
-}
+    fun createNews(list: List<News>) {
+        launch {
+            db.gameDao().insertNews(*list.toTypedArray())
+            refreshNews()
+        }
+    }
 
+    private fun refreshNews() {
+        launch {
+            val news = db.gameDao().getAllNews()
+            withContext(Dispatchers.Main) {
+                newsLD.value = news
+            }
+        }
+    }
+}

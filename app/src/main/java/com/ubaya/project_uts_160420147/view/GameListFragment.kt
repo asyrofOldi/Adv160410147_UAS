@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ubaya.project_uts_160420147.databinding.FragmentGameListBinding
 import com.ubaya.project_uts_160420147.viewmodel.GameListModel
@@ -33,19 +34,23 @@ class GameListFragment : Fragment() {
         }
 
         binding.refreshLayout.setOnRefreshListener {
-            // Always refresh on user action, even if data is already fetched
             gamesViewModel.refresh()
             binding.refreshLayout.isRefreshing = false
         }
+        setupFab()
 
         observeViewModel()
     }
 
     override fun onResume() {
         super.onResume()
-        // Check if data is not fetched then refresh
-        if (!gamesViewModel.dataFetched) {
-            gamesViewModel.refresh()
+        gamesViewModel.refresh()
+    }
+
+    private fun setupFab() {
+        binding.fabTambahGame.setOnClickListener {
+            val action = GameListFragmentDirections.actionToTambahGame()
+            Navigation.findNavController(it).navigate(action)
         }
     }
 
