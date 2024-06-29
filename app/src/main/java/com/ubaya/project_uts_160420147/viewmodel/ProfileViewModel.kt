@@ -20,6 +20,8 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
 
     val firstName = MutableLiveData<String>()
     val lastName = MutableLiveData<String>()
+    val email = MutableLiveData<String>()
+    val phoneNumber = MutableLiveData<String>()
     val password = MutableLiveData<String>()
 
     override val coroutineContext: CoroutineContext
@@ -46,9 +48,9 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    fun updateProfile(akunId: Int, firstName: String, lastName: String, password: String) {
+    fun updateProfile(akunId: Int, firstName: String, lastName: String, email: String, phoneNumber: String, password: String) {
         launch {
-            db.gameDao().updateAkun(akunId,firstName,lastName, password)
+            db.gameDao().updateAkun(akunId, firstName, lastName, email, phoneNumber, password)
         }
     }
 
