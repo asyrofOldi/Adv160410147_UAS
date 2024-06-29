@@ -18,6 +18,10 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     val akunLD = MutableLiveData<Akun?>()
     private var job = Job()
 
+    val firstName = MutableLiveData<String>()
+    val lastName = MutableLiveData<String>()
+    val password = MutableLiveData<String>()
+
     override val coroutineContext: CoroutineContext
         get() = job + Dispatchers.IO
 

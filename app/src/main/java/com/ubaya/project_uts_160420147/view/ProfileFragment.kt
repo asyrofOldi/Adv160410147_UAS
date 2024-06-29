@@ -8,31 +8,39 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.ubaya.project_uts_160420147.databinding.FragmentProfilBinding
 import com.ubaya.project_uts_160420147.viewmodel.ProfileViewModel
 
 class ProfileFragment : Fragment() {
     private lateinit var binding: FragmentProfilBinding
-    private lateinit var viewModel: ProfileViewModel
+    private val viewModel: ProfileViewModel by viewModels()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         binding = FragmentProfilBinding.inflate(inflater, container, false)
-        viewModel = ViewModelProvider(this).get(ProfileViewModel::class.java)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = viewLifecycleOwner
+
         loadUserData()
-        viewModel.akunLD.observe(viewLifecycleOwner) { akun ->
+
+        viewModel.akunLD.observe(viewLifecycleOwner, Observer { akun ->
             akun?.let {
                 binding.editTextFirstName.setText(it.firstName)
                 binding.editTextLastName.setText(it.lastName)
                 binding.editTextPassword.setText(it.password)
             }
-        }
+        })
 
         binding.buttonSaveChanges.setOnClickListener {
             saveUserData()
